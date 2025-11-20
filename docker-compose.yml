@@ -1,12 +1,23 @@
-version: "3.8"
-
 services:
   backend:
     build: .
+    container_name: backend-api
     ports:
       - "8000:8000"
     environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - AXIOM_API_TOKEN=${AXIOM_API_TOKEN}
+      - AXIOM_DATASET=${AXIOM_DATASET}
+      - AXIOM_DOMAIN=${AXIOM_DOMAIN}
+      - SERVICE_NAME=task-management-api
       - PYTHONUNBUFFERED=1
     restart: unless-stopped
     volumes:
       - ./app:/app/app
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+    enable_ipv6: false
