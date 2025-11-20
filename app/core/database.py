@@ -43,11 +43,18 @@ class PostgresDatabase:
     """Adaptador para PostgreSQL usando SQLAlchemy con async"""
 
     def __init__(self, database_url: str):
-        # Reemplazar postgresql:// por postgresql+asyncpg://
+        # Reemplazar postgresql:// por postgresql+psycopg://
         if database_url.startswith("postgresql://"):
-            database_url = database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+            database_url = database_url.replace("postgresql://", "postgresql+psycopg://", 1)
         
-        self.engine = create_async_engine(database_url, echo=False)
+        # Configuración para Supabase pgbouncer con psycopg
+        self.engine = create_async_engine(
+            database_url,
+            echo=False,
+            pool_pre_ping=True,
+            pool_size=5,
+            max_overflow=10
+        )
         self.async_session = async_sessionmaker(
             self.engine, class_=AsyncSession, expire_on_commit=False
         )
