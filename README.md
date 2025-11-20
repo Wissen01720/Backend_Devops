@@ -13,6 +13,7 @@ A modern REST API built with FastAPI and PostgreSQL for managing tasks. Features
 - ✅ **Data Validation**: Pydantic models for request/response validation
 - 🌐 **CORS Enabled**: Ready for frontend integration
 - 💾 **Fallback Storage**: In-memory storage if database is not configured
+- 📊 **OpenTelemetry Integration**: Automatic tracing and monitoring with Axiom
 
 ## 🛠️ Tech Stack
 
@@ -23,6 +24,8 @@ A modern REST API built with FastAPI and PostgreSQL for managing tasks. Features
 - **Uvicorn** - ASGI server
 - **PostgreSQL** - Database (Supabase)
 - **Docker** - Containerization
+- **OpenTelemetry** - Observability and tracing
+- **Axiom** - Telemetry data platform
 
 ## 📋 Prerequisites
 
@@ -47,13 +50,21 @@ Create a `.env` file from the example:
 cp .env.example .env
 ```
 
-Edit `.env` and add your database URL:
+Edit `.env` and add your database URL and Axiom configuration:
 
 ```env
 DATABASE_URL="postgresql://user:password@host:5432/database"
+
+# Optional: OpenTelemetry & Axiom (for monitoring)
+AXIOM_API_TOKEN=your_axiom_api_token_here
+AXIOM_DATASET=your_dataset_name
+AXIOM_DOMAIN=api.axiom.co
+SERVICE_NAME=task-management-api
 ```
 
 > **Note**: If you don't configure `DATABASE_URL`, the app will use in-memory storage (data will be lost on restart).
+>
+> **Note**: Axiom telemetry is optional. If not configured, the app will run without tracing. See [TELEMETRY.md](TELEMETRY.md) for setup instructions.
 
 ### 3. Install dependencies
 
@@ -214,7 +225,8 @@ backend/
 │   ├── core/
 │   │   ├── __init__.py
 │   │   ├── config.py           # Application settings
-│   │   └── database.py         # Database adapters (PostgreSQL/In-Memory)
+│   │   ├── database.py         # Database adapters (PostgreSQL/In-Memory)
+│   │   └── telemetry.py        # OpenTelemetry & Axiom configuration
 │   └── models/
 │       ├── __init__.py
 │       ├── task.py             # Pydantic models (API schemas)
@@ -226,7 +238,8 @@ backend/
 ├── Dockerfile                  # Docker image definition
 ├── docker-compose.yml          # Docker Compose configuration
 ├── requirements.txt            # Python dependencies
-└── README.md                   # This file
+├── README.md                   # This file
+└── TELEMETRY.md                # OpenTelemetry & Axiom setup guide
 ```
 
 ## 🗄️ Database Schema
@@ -247,11 +260,17 @@ The table is created automatically when the application starts if it doesn't exi
 
 Configuration is managed through environment variables. Available options:
 
-| Variable     | Description                  | Default               |
-| ------------ | ---------------------------- | --------------------- |
-| DATABASE_URL | PostgreSQL connection string | None (uses in-memory) |
-| HOST         | Server host                  | 0.0.0.0               |
-| PORT         | Server port                  | 8000                  |
+| Variable        | Description                  | Default               | Required |
+| --------------- | ---------------------------- | --------------------- | -------- |
+| DATABASE_URL    | PostgreSQL connection string | None (uses in-memory) | No       |
+| AXIOM_API_TOKEN | Axiom API token for tracing  | None                  | No       |
+| AXIOM_DATASET   | Axiom dataset name           | None                  | No       |
+| AXIOM_DOMAIN    | Axiom endpoint domain        | api.axiom.co          | No       |
+| SERVICE_NAME    | Service name for traces      | task-management-api   | No       |
+| HOST            | Server host                  | 0.0.0.0               | No       |
+| PORT            | Server port                  | 8000                  | No       |
+
+See [TELEMETRY.md](TELEMETRY.md) for detailed OpenTelemetry setup instructions.
 
 ## 🔒 Security Notes
 
@@ -281,6 +300,7 @@ Visit the interactive documentation at `http://localhost:8000/docs` to test all 
 - [x] Automatic table creation
 - [x] Full CRUD operations
 - [x] Docker support
+- [x] OpenTelemetry & Axiom integration
 - [ ] Authentication (JWT)
 - [ ] Unit and integration tests
 - [ ] Rate limiting
