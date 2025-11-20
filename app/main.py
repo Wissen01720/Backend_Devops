@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 from app.core.config import settings
 from app.core.database import db, PostgresDatabase
+from app.core.telemetry import setup_telemetry
 from app.api.routes import router
 
 
@@ -35,6 +36,9 @@ def create_application() -> FastAPI:
         allow_methods=settings.allow_methods,
         allow_headers=settings.allow_headers,
     )
+
+    # Configurar OpenTelemetry y Axiom
+    setup_telemetry(application)
 
     # Incluir rutas
     application.include_router(router)

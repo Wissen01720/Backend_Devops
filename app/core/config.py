@@ -17,6 +17,12 @@ class Settings(BaseSettings):
     allow_credentials: bool = True
     allow_methods: list[str] = ["*"]
     allow_headers: list[str] = ["*"]
+    
+    # OpenTelemetry & Axiom
+    axiom_api_token: str | None = None
+    axiom_dataset: str | None = None
+    axiom_domain: str = "api.axiom.co"  # Use cloud.axiom.co for EU region
+    service_name: str = "task-management-api"
 
     class Config:
         env_file = ".env"
